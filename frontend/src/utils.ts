@@ -1,0 +1,42 @@
+const EXT_LANG: Record<string, string> = {
+  rs:    'rust',
+  py:    'python',
+  js:    'javascript',
+  jsx:   'javascript',
+  ts:    'typescript',
+  tsx:   'typescript',
+  go:    'go',
+  c:     'c',
+  h:     'c',
+  cpp:   'cpp',
+  cc:    'cpp',
+  cxx:   'cpp',
+  hpp:   'cpp',
+  java:  'java',
+  kt:    'kotlin',
+  swift: 'swift',
+  rb:    'ruby',
+  php:   'php',
+  cs:    'csharp',
+  lua:   'lua',
+  sql:   'sql',
+  md:    'markdown',
+  json:  'json',
+  toml:  'ini',
+  yaml:  'yaml',
+  yml:   'yaml',
+  xml:   'xml',
+  html:  'html',
+  css:   'css',
+  scss:  'scss',
+  sh:    'shell',
+  bash:  'shell',
+  zsh:   'shell',
+  fish:  'shell',
+  txt:   'plaintext',
+}
+
+export function getLanguageFromPath(path: string): string {
+  const ext = path.split('.').pop()?.toLowerCase() ?? ''
+  return EXT_LANG[ext] ?? 'plaintext'
+}

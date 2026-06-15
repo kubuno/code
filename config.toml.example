@@ -1,0 +1,35 @@
+# ─── Kubuno Code — Configuration ──────────────────────────────────────────────
+# Copiez ce fichier en config.toml et adaptez les valeurs.
+# Les variables d'environnement préfixées KC__ surchargent ce fichier.
+# Exemple : KC__SERVER__PORT=3112
+
+[server]
+host = "127.0.0.1"
+port = 3112
+
+[core]
+# URL du core Kubuno (pour l'enregistrement du module)
+url             = "http://127.0.0.1:8080"
+# Secret partagé — doit correspondre à server.internal_secret dans le core
+internal_secret = "change_me"
+
+# ── Base de données ───────────────────────────────────────────────────────────
+# Les paramètres de connexion sont injectés par le superviseur Kubuno via
+# KUBUNO_DB_HOST / KUBUNO_DB_PORT / KUBUNO_DB_USER / KUBUNO_DB_PASSWORD / KUBUNO_DB_NAME.
+
+[logging]
+level  = "info"
+format = "pretty"
+
+# ── Code ─────────────────────────────────────────────────────────────────────
+[code]
+# Répertoire racine dans lequel les projets utilisateurs sont stockés
+projects_root = "/var/lib/kubuno/modules/code/projects"
+# Répertoire des extensions téléchargées
+extensions_dir = "/var/lib/kubuno/modules/code/extensions"
+# Taille max pour l'édition en mémoire (8 MiB par défaut)
+max_file_bytes = 8388608
+# Shells autorisés pour le terminal (le premier sera le défaut)
+allowed_shells = ["/bin/bash", "/bin/sh", "/usr/bin/zsh"]
+# Marketplace des extensions (Open VSX par défaut)
+extension_registry_url = "https://open-vsx.org/api"
