@@ -15,7 +15,7 @@ export function StatusBar({ project }: Props) {
     : 0
 
   return (
-    <div className="flex items-center justify-between px-3 py-0.5 bg-[#007acc] text-white text-[12px] select-none shrink-0">
+    <div className="flex items-center justify-between px-3 py-0.5 bg-[#007acc] text-white text-[12px] select-none shrink-0 no-print">
       {/* Left */}
       <div className="flex items-center gap-4">
         {gitStatus && (

@@ -144,8 +144,10 @@ export default function CodeWorkbench({ project }: Props) {
     <div className="flex flex-col flex-1 min-w-0 min-h-0 bg-[#1e1e1e] text-[#cccccc] font-mono text-sm overflow-hidden">
       {/* Activity Bar + Content */}
       <div className="flex flex-1 overflow-hidden min-h-0" ref={containerRef}>
-        <ActivityBar />
-        <CodeSidebar project={project} />
+        {/* Barre d'activité + explorateur masqués sur mobile (place à l'éditeur)
+            et à l'impression. */}
+        <div className="hidden sm:flex no-print"><ActivityBar /></div>
+        <div className="hidden lg:flex no-print"><CodeSidebar project={project} /></div>
 
         {/* Editor + Panel */}
         <div className="flex flex-col flex-1 overflow-hidden">
@@ -159,7 +161,7 @@ export default function CodeWorkbench({ project }: Props) {
           {store.panelVisible && (
             <>
               <div
-                className="h-1 bg-[#333] hover:bg-[#007acc] cursor-row-resize shrink-0"
+                className="h-1 bg-[#333] hover:bg-[#007acc] cursor-row-resize shrink-0 no-print"
                 onMouseDown={onDividerMouseDown}
               />
               <div className="flex-1 overflow-hidden min-h-0">

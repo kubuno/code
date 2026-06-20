@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { codeApi } from './api'
-import { Dropdown } from '@ui'
+import { Dropdown, RangeSlider } from '@ui'
 
 interface EditorSettings {
   fontSize?:    number
@@ -86,11 +86,14 @@ export function SettingsPanel() {
           <label className="block text-[11px] text-[#bbbbbe] mb-1">
             {t('code_font_size')} <span className="text-[#cccccc]">{s.fontSize}px</span>
           </label>
-          <input
-            type="range" min={10} max={24} step={1}
+          <RangeSlider
+            min={10} max={24} step={1}
             value={s.fontSize}
-            onChange={e => update('fontSize', Number(e.target.value))}
-            className="w-full accent-[#007acc]"
+            onChange={v => update('fontSize', v)}
+            className="w-full"
+            accent="#007acc"
+            trackColor="rgba(255,255,255,0.15)"
+            aria-label={t('code_font_size')}
           />
         </div>
 
