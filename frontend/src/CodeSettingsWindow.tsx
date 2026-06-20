@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Search, ChevronRight, Settings2 } from 'lucide-react'
 import { FloatingWindow } from '@ui'
 import { codeApi } from './api'
-import { Dropdown, Checkbox } from '@ui'
+import { Dropdown, Checkbox, RangeSlider } from '@ui'
 import { useCodeStore } from './store'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -262,20 +262,18 @@ function SettingRow({
           />
         )
       case 'range':
+        // 'boxed' variant provides the editable numeric field, replacing the
+        // previous separate number input.
         return (
-          <div className="flex items-center gap-3 w-full max-w-xs">
-            <input
-              type="range" min={def.min} max={def.max} step={1}
+          <div className="w-full max-w-xs">
+            <RangeSlider
+              variant="boxed"
+              min={def.min} max={def.max} step={1}
               value={Number(current)}
-              onChange={e => onChange(def.key, Number(e.target.value))}
-              className="flex-1 accent-[#007acc]"
-            />
-            <input
-              type="number" min={def.min} max={def.max}
-              value={Number(current)}
-              onChange={e => onChange(def.key, Number(e.target.value))}
-              className="w-14 bg-[#3c3c3c] text-[#cccccc] text-[12px] text-center rounded px-1 py-1
-                         border border-[#555] outline-none focus:border-[#007acc]"
+              onChange={v => onChange(def.key, v)}
+              accent="#007acc"
+              trackColor="rgba(255,255,255,0.15)"
+              aria-label={optLabel(def.label)}
             />
           </div>
         )

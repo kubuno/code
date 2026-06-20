@@ -147,7 +147,7 @@ function ProjectList({ onOpen }: { onOpen: (p: Project) => void }) {
       {showNew && (
         <div className="mb-6 bg-[#252526] rounded-lg p-5 border border-[#454545]">
           <h2 className="text-[15px] font-medium mb-4">{t('code_new_project')}</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[12px] text-[#bbbbbe] mb-1">{t('code_field_name')}</label>
               <input
@@ -268,7 +268,7 @@ function ProjectList({ onOpen }: { onOpen: (p: Project) => void }) {
 
       {/* Projects grid */}
       {isLoading ? (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1,2,3].map(i => (
             <div key={i} className="bg-[#252526] rounded-lg p-4 animate-pulse h-28" />
           ))}
@@ -280,7 +280,7 @@ function ProjectList({ onOpen }: { onOpen: (p: Project) => void }) {
           <p className="text-[13px] text-[#5a5a5a] mt-1">{t('code_no_projects_hint')}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {projects.map(p => (
             <ProjectCard
               key={p.id}
