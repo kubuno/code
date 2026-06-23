@@ -6,6 +6,8 @@ import { X } from 'lucide-react'
 import { useCodeStore } from './store'
 import { codeApi } from './api'
 import type { Project } from './api'
+import { useModulePrefs } from './userPrefs'
+import { DEFAULT_PREFS, type CodePrefs } from './CodeSettingsPage'
 import clsx from 'clsx'
 import type { editor } from 'monaco-editor'
 
@@ -24,13 +26,26 @@ export function EditorArea({ onSave: _onSave }: Props) {
     queryFn:  codeApi.getSettings,
     staleTime: 60_000,
   })
-  const settings = (userSettings ?? {}) as {
+  const baseSettings = (userSettings ?? {}) as {
     fontSize?: number; tabSize?: number; wordWrap?: string; theme?: string
     fontFamily?: string; fontLigatures?: boolean; minimap?: boolean; lineNumbers?: string
     insertSpaces?: boolean; detectIndentation?: boolean; formatOnSave?: boolean
     formatOnType?: boolean; smoothScrolling?: boolean; scrollBeyondLastLine?: boolean
     renderWhitespace?: string; bracketPairColorization?: boolean; guidesBracketPairs?: string
     cursorBlinking?: string; cursorStyle?: string; cursorSmoothCaretAnimation?: string
+  }
+
+  // Per-user preferences (core users.preferences) override the module-level
+  // editor settings for the handful of options exposed on the settings page.
+  const { prefs } = useModulePrefs<CodePrefs>('code', DEFAULT_PREFS)
+  const settings = {
+    ...baseSettings,
+    theme:            prefs.theme,
+    fontSize:         Number(prefs.fontSize),
+    tabSize:          Number(prefs.tabSize),
+    wordWrap:         prefs.wordWrap ? 'on' : 'off',
+    minimap:          prefs.minimap,
+    renderWhitespace: prefs.renderWhitespace ? 'all' : (baseSettings.renderWhitespace ?? 'selection'),
   }
 
   const activeTab = openTabs.find(t => t.path === activeTabPath)
