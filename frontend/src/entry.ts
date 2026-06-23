@@ -12,6 +12,7 @@ import {
   WidgetRegistry,
   SlotRegistry,
   FaviconRegistry,
+  ModuleSettingsRegistry,
   useSidebarStore,
   useToolbarStore,
   SDK_VERSION,
@@ -32,6 +33,9 @@ export function register() {
   WaffleAppRegistry.register('code', 'Code', [
     { id: 'code', label: 'Code', Icon: CodeLogo, path: '/code' },
   ])
+
+  // The header gear button opens the per-user Code settings while in /code.
+  ModuleSettingsRegistry.register('code')
 
   WidgetRegistry.register({
     id:        'code-recent',
@@ -65,8 +69,9 @@ export function register() {
   })
 
   // Routes
-  const CodeApp = lazy(() => import('./CodeApp'))
+  const CodeApp          = lazy(() => import('./CodeApp'))
+  const CodeSettingsPage = lazy(() => import('./CodeSettingsPage'))
 
   RouteRegistry.register('code',          CodeApp)
-  RouteRegistry.register('code/settings', CodeApp)
+  RouteRegistry.register('code/settings', CodeSettingsPage)
 }
