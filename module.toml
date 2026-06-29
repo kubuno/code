@@ -1,7 +1,7 @@
 [module]
 id            = "code"
 display_name  = "Code"
-version       = "0.1.0"
+version       = "0.1.2"
 description   = "IDE web collaborative — éditeur de code et Git"
 author        = "Kubuno Contributors"
 license       = "AGPL-3.0"
