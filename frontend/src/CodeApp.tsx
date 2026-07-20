@@ -13,10 +13,31 @@ import type { CreateProjectDto, Project } from './api'
 import CodeWorkbench from './CodeWorkbench'
 import { filesService } from './filesService'
 import { api } from '@kubuno/sdk'
+import { projectFromSearch } from './codeRoute'
 
 export default function CodeApp() {
   const { activeProject, setActiveProject, openTab, setActiveTab } = useCodeStore()
   const [searchParams, setSearchParams] = useSearchParams()
+
+  // The sidebar rows are real links (/code?project=<id>). Read the selection
+  // back from the URL so a pasted link, a reload and the browser Back button all
+  // restore the right project instead of only the store driving it.
+  const { data: knownProjects = [] } = useQuery({
+    queryKey: ['code-projects'],
+    queryFn:  codeApi.listProjects,
+  })
+  const urlProjectId = projectFromSearch(searchParams.toString())
+  useEffect(() => {
+    if (!urlProjectId) {
+      // Back to /code with no project: close the workbench. Projects synthesized
+      // for a file opened from drive have no id in the list, so keep those.
+      if (activeProject && !activeProject.id.startsWith('__files__')) setActiveProject(null)
+      return
+    }
+    if (urlProjectId === activeProject?.id) return
+    const found = knownProjects.find(p => p.id === urlProjectId)
+    if (found) setActiveProject(found)
+  }, [urlProjectId, knownProjects, activeProject, setActiveProject])
 
   // Ouverture d'un fichier venant du module files via "Ouvrir avec…"
   useEffect(() => {
@@ -69,7 +90,7 @@ export default function CodeApp() {
     )
   }
 
-  return <ProjectList onOpen={setActiveProject} />
+  return <ProjectList onOpen={p => { setActiveProject(p); setSearchParams({ project: p.id }) }} />
 }
 
 function detectLanguageFromName(name: string): string {
