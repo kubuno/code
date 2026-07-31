@@ -40,7 +40,7 @@ export function SearchPanel({ project }: Props) {
         <div className="flex items-center bg-[#3c3c3c] rounded px-2 py-1 gap-2">
           <Search size={14} className="text-[#858585] shrink-0" />
           <input
-            className="flex-1 bg-transparent text-[13px] text-[#cccccc] outline-none placeholder:text-[#858585]"
+            className="flex-1 bg-transparent text-sm text-[#cccccc] outline-none placeholder:text-[#858585]"
             placeholder={t('code_search_placeholder')}
             value={query}
             onChange={e => setQuery(e.target.value)}
@@ -49,7 +49,7 @@ export function SearchPanel({ project }: Props) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-2 text-[12px]">
+      <div className="flex-1 overflow-y-auto px-2 text-xs">
         {loading && <div className="text-[#858585] py-2">{t('code_search_searching')}</div>}
         {results.map((r, i) => (
           <div

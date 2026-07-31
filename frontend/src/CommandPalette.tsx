@@ -77,7 +77,7 @@ export function CommandPalette({ project, onClose }: Props) {
           <Search size={16} className="text-[#858585] shrink-0" />
           <input
             ref={inputRef}
-            className="flex-1 bg-transparent text-[14px] text-[#cccccc] outline-none placeholder:text-[#858585]"
+            className="flex-1 bg-transparent text-sm text-[#cccccc] outline-none placeholder:text-[#858585]"
             placeholder={t('code_palette_placeholder')}
             value={query}
             onChange={e => { setQuery(e.target.value); setSelected(0) }}
@@ -88,14 +88,14 @@ export function CommandPalette({ project, onClose }: Props) {
 
         <div className="max-h-80 overflow-y-auto">
           {allCommands.length === 0 && (
-            <div className="px-4 py-3 text-[13px] text-[#858585]">
+            <div className="px-4 py-3 text-xs text-[#858585]">
               {query ? t('code_palette_no_results') : t('code_palette_no_open_files')}
             </div>
           )}
           {allCommands.map((cmd, i) => (
             <div
               key={i}
-              className={`flex items-center justify-between px-4 py-2 cursor-pointer text-[13px] ${
+              className={`flex items-center justify-between px-4 py-2 cursor-pointer text-xs ${
                 i === selected ? 'bg-[#007acc] text-white' : 'text-[#cccccc] hover:bg-[#2a2d2e]'
               }`}
               onClick={cmd.action}

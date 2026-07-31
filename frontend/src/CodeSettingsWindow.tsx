@@ -283,7 +283,7 @@ function SettingRow({
             type="text"
             value={String(current)}
             onChange={e => onChange(def.key, e.target.value)}
-            className="bg-[#3c3c3c] text-[#cccccc] text-[12px] font-mono rounded px-2 py-1.5
+            className="bg-[#3c3c3c] text-[#cccccc] text-xs font-mono rounded px-2 py-1.5
                        border border-[#555] outline-none focus:border-[#007acc] w-full max-w-md"
           />
         )
@@ -296,13 +296,13 @@ function SettingRow({
         <label className="flex items-start gap-3 cursor-pointer">
           {control()}
           <div>
-            <div className="text-[12px] text-[#cccccc] font-medium leading-tight">{t(def.label)}</div>
+            <div className="text-xs text-[#cccccc] font-medium leading-tight">{t(def.label)}</div>
             <div className="text-[11px] text-[#858585] mt-0.5 leading-snug">{t(def.description)}</div>
           </div>
         </label>
       ) : (
         <>
-          <div className="text-[12px] text-[#cccccc] font-medium mb-0.5">{t(def.label)}</div>
+          <div className="text-xs text-[#cccccc] font-medium mb-0.5">{t(def.label)}</div>
           <div className="text-[11px] text-[#858585] mb-2 leading-snug">{t(def.description)}</div>
           {control()}
         </>
@@ -324,7 +324,7 @@ function NavTree({
 }) {
   const { t } = useTranslation('code')
   return (
-    <ul className="py-1 text-[12px] select-none">
+    <ul className="py-1 text-xs select-none">
       {categories.map(cat => (
         <li key={cat.id}>
           <button
@@ -440,7 +440,7 @@ export function CodeSettingsWindow() {
     >
       {/* Titre de section */}
       <div className="sticky top-0 bg-[#1e1e1e] z-10 border-b border-[#333] px-6 py-2">
-        <h2 className="text-[12px] font-semibold text-[#cccccc] uppercase tracking-wider">
+        <h2 className="text-xs font-semibold text-[#cccccc] uppercase tracking-wider">
           {t(cat.label)}
         </h2>
       </div>
@@ -495,7 +495,7 @@ export function CodeSettingsWindow() {
             placeholder={t('code_settings_search_placeholder')}
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="flex-1 bg-transparent text-[13px] text-[#cccccc] outline-none placeholder:text-[#606060]"
+            className="flex-1 bg-transparent text-sm text-[#cccccc] outline-none placeholder:text-[#606060]"
           />
           {search && (
             <button onClick={() => setSearch('')} className="text-[#858585] hover:text-[#cccccc] text-xs">✕</button>
@@ -521,7 +521,7 @@ export function CodeSettingsWindow() {
             {filteredDefs ? (
               <div className="px-6 py-4">
                 {filteredDefs.length === 0
-                  ? <p className="text-[12px] text-[#858585]">{t('code_no_settings_match', { search })}</p>
+                  ? <p className="text-xs text-[#858585]">{t('code_no_settings_match', { search })}</p>
                   : filteredDefs.map(def => (
                       <SettingRow key={def.key} def={def} value={localValues[def.key]} onChange={handleChange} />
                     ))

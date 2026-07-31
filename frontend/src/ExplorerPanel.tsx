@@ -54,7 +54,7 @@ export function ExplorerPanel({ project }: Props) {
       </div>
 
       {/* File tree */}
-      <div className="flex-1 overflow-y-auto text-[13px]">
+      <div className="flex-1 overflow-y-auto text-xs">
         {fileTree.map(node => (
           <FileTreeNode
             key={node.path}

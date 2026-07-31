@@ -54,8 +54,8 @@ export function EditorArea({ onSave: _onSave }: Props) {
     return (
       <div className="flex flex-col h-full items-center justify-center text-[#858585] select-none">
         <div className="text-[48px] mb-4">⌨️</div>
-        <p className="text-[14px]">{t('code_editor_empty_open_file')}</p>
-        <p className="text-[12px] mt-1 text-[#5a5a5a]">{t('code_editor_empty_palette_hint')}</p>
+        <p className="text-xs">{t('code_editor_empty_open_file')}</p>
+        <p className="text-xs mt-1 text-[#5a5a5a]">{t('code_editor_empty_palette_hint')}</p>
       </div>
     )
   }
@@ -69,7 +69,7 @@ export function EditorArea({ onSave: _onSave }: Props) {
             key={tab.path}
             onClick={() => setActiveTab(tab.path)}
             className={clsx(
-              'flex items-center gap-2 px-4 py-2 cursor-pointer shrink-0 border-r border-[#1e1e1e] text-[13px] whitespace-nowrap group',
+              'flex items-center gap-2 px-4 py-2 cursor-pointer shrink-0 border-r border-[#1e1e1e] text-xs whitespace-nowrap group',
               tab.path === activeTabPath
                 ? 'bg-[#1e1e1e] text-[#cccccc] border-t-2 border-t-[#007acc]'
                 : 'text-[#858585] hover:bg-[#252526]',

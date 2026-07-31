@@ -36,7 +36,7 @@ export function ActivityBar() {
           >
             <Icon size={22} />
             {id === 'git' && changedCount > 0 && (
-              <span className="absolute top-1 right-1 bg-[#007acc] text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">
+              <span className="absolute top-1 right-1 bg-[#007acc] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">
                 {changedCount > 99 ? '99+' : changedCount}
               </span>
             )}

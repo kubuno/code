@@ -50,7 +50,7 @@ export function ExtensionsPanel() {
         <div className="flex items-center bg-[#3c3c3c] rounded px-2 py-1 gap-2">
           <Search size={14} className="text-[#858585] shrink-0" />
           <input
-            className="flex-1 bg-transparent text-[13px] text-[#cccccc] outline-none placeholder:text-[#858585]"
+            className="flex-1 bg-transparent text-sm text-[#cccccc] outline-none placeholder:text-[#858585]"
             placeholder={t('code_search_extensions')}
             value={query}
             onChange={e => { setQuery(e.target.value); setSearchMode(true) }}
@@ -59,7 +59,7 @@ export function ExtensionsPanel() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto text-[12px]">
+      <div className="flex-1 overflow-y-auto text-xs">
         {searchMode && query.length > 1 ? (
           <>
             {searching && <div className="px-3 text-[#858585]">{t('code_searching')}</div>}

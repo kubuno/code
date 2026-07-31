@@ -141,14 +141,14 @@ function ProjectList({ onOpen }: { onOpen: (p: Project) => void }) {
           <Code2 size={32} className="text-[#007acc]" />
           <div>
             <h1 className="text-[22px] font-semibold">{t('code_app_title')}</h1>
-            <p className="text-[13px] text-[#858585]">{t('code_app_subtitle')}</p>
+            <p className="text-xs text-[#858585]">{t('code_app_subtitle')}</p>
           </div>
         </div>
         <div className="flex gap-2">
           {filesService.isAvailable() && (
             <button
               onClick={() => filesService.openFilePicker({ title: t('code_open_from_files') })}
-              className="flex items-center gap-2 px-4 py-2 bg-[#3c3c3c] text-[#cccccc] rounded hover:bg-[#454545] text-[13px] border border-[#454545]"
+              className="flex items-center gap-2 px-4 py-2 bg-[#3c3c3c] text-[#cccccc] rounded hover:bg-[#454545] text-xs border border-[#454545]"
             >
               <FolderOpen size={16} />
               {t('code_open_from_files')}
@@ -156,7 +156,7 @@ function ProjectList({ onOpen }: { onOpen: (p: Project) => void }) {
           )}
           <button
             onClick={() => setShowNew(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-[#007acc] text-white rounded hover:bg-[#005a9e] text-[13px]"
+            className="flex items-center gap-2 px-4 py-2 bg-[#007acc] text-white rounded hover:bg-[#005a9e] text-xs"
           >
             <Plus size={16} />
             {t('code_new_project')}
@@ -170,9 +170,9 @@ function ProjectList({ onOpen }: { onOpen: (p: Project) => void }) {
           <h2 className="text-[15px] font-medium mb-4">{t('code_new_project')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[12px] text-[#bbbbbe] mb-1">{t('code_field_name')}</label>
+              <label className="block text-sm text-[#bbbbbe] mb-1">{t('code_field_name')}</label>
               <input
-                className="w-full bg-[#3c3c3c] text-[13px] text-[#cccccc] rounded px-3 py-2 outline-none border border-transparent focus:border-[#007acc] placeholder:text-[#858585]"
+                className="w-full bg-[#3c3c3c] text-sm text-[#cccccc] rounded px-3 py-2 outline-none border border-transparent focus:border-[#007acc] placeholder:text-[#858585]"
                 placeholder="mon-projet"
                 value={newForm.name}
                 onChange={e => setNewForm(f => ({ ...f, name: e.target.value }))}
@@ -181,9 +181,9 @@ function ProjectList({ onOpen }: { onOpen: (p: Project) => void }) {
               />
             </div>
             <div>
-              <label className="block text-[12px] text-[#bbbbbe] mb-1">{t('code_field_git_url')}</label>
+              <label className="block text-sm text-[#bbbbbe] mb-1">{t('code_field_git_url')}</label>
               <input
-                className="w-full bg-[#3c3c3c] text-[13px] text-[#cccccc] rounded px-3 py-2 outline-none border border-transparent focus:border-[#007acc] placeholder:text-[#858585]"
+                className="w-full bg-[#3c3c3c] text-sm text-[#cccccc] rounded px-3 py-2 outline-none border border-transparent focus:border-[#007acc] placeholder:text-[#858585]"
                 placeholder="https://github.com/..."
                 value={newForm.git_clone ?? ''}
                 onChange={e => setNewForm(f => ({ ...f, git_clone: e.target.value || undefined }))}
@@ -191,9 +191,9 @@ function ProjectList({ onOpen }: { onOpen: (p: Project) => void }) {
             </div>
           </div>
           <div className="mt-3">
-            <label className="block text-[12px] text-[#bbbbbe] mb-1">{t('code_field_description')}</label>
+            <label className="block text-sm text-[#bbbbbe] mb-1">{t('code_field_description')}</label>
             <input
-              className="w-full bg-[#3c3c3c] text-[13px] text-[#cccccc] rounded px-3 py-2 outline-none border border-transparent focus:border-[#007acc] placeholder:text-[#858585]"
+              className="w-full bg-[#3c3c3c] text-sm text-[#cccccc] rounded px-3 py-2 outline-none border border-transparent focus:border-[#007acc] placeholder:text-[#858585]"
               placeholder={t('code_description_placeholder')}
               value={newForm.description ?? ''}
               onChange={e => setNewForm(f => ({ ...f, description: e.target.value || undefined }))}
@@ -202,12 +202,12 @@ function ProjectList({ onOpen }: { onOpen: (p: Project) => void }) {
 
           {/* Emplacement de stockage */}
           <div className="mt-4">
-            <label className="block text-[12px] text-[#bbbbbe] mb-2">{t('code_storage_location')}</label>
+            <label className="block text-xs text-[#bbbbbe] mb-2">{t('code_storage_location')}</label>
             <div className="flex gap-2 flex-wrap">
               <button
                 type="button"
                 onClick={() => { setNewForm(f => ({ ...f, storage: 'local', files_parent_folder_id: undefined })); setSelectedFolder(null) }}
-                className={`flex items-center gap-2 px-3 py-2 rounded text-[12px] border transition-colors ${
+                className={`flex items-center gap-2 px-3 py-2 rounded text-xs border transition-colors ${
                   (newForm.storage ?? 'local') === 'local'
                     ? 'bg-[#007acc] border-[#007acc] text-white'
                     : 'bg-[#3c3c3c] border-[#454545] text-[#cccccc] hover:border-[#6a6a6a]'
@@ -220,7 +220,7 @@ function ProjectList({ onOpen }: { onOpen: (p: Project) => void }) {
                 <button
                   type="button"
                   onClick={() => setNewForm(f => ({ ...f, storage: 'files' }))}
-                  className={`flex items-center gap-2 px-3 py-2 rounded text-[12px] border transition-colors ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded text-xs border transition-colors ${
                     newForm.storage === 'files'
                       ? 'bg-[#007acc] border-[#007acc] text-white'
                       : 'bg-[#3c3c3c] border-[#454545] text-[#cccccc] hover:border-[#6a6a6a]'
@@ -243,7 +243,7 @@ function ProjectList({ onOpen }: { onOpen: (p: Project) => void }) {
                       setNewForm(f => ({ ...f, files_parent_folder_id: result?.id ?? null }))
                     }
                   }}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-[#3c3c3c] border border-[#6a6a6a] text-[#cccccc] rounded text-[12px] hover:border-[#007acc] transition-colors"
+                  className="flex items-center gap-2 px-3 py-1.5 bg-[#3c3c3c] border border-[#6a6a6a] text-[#cccccc] rounded text-xs hover:border-[#007acc] transition-colors"
                 >
                   <FolderOpen size={13} />
                   {selectedFolder ? t('code_in_folder', { name: selectedFolder.name }) : t('code_choose_folder')}
@@ -268,19 +268,19 @@ function ProjectList({ onOpen }: { onOpen: (p: Project) => void }) {
             <button
               onClick={() => createMut.mutate(newForm)}
               disabled={!newForm.name.trim() || createMut.isPending}
-              className="px-4 py-2 bg-[#007acc] text-white rounded text-[13px] hover:bg-[#005a9e] disabled:opacity-50"
+              className="px-4 py-2 bg-[#007acc] text-white rounded text-xs hover:bg-[#005a9e] disabled:opacity-50"
             >
               {createMut.isPending ? t('code_creating') : newForm.git_clone ? t('code_clone_and_open') : t('code_create_and_open')}
             </button>
             <button
               onClick={() => { setShowNew(false); setNewForm({ name: '' }) }}
-              className="px-4 py-2 bg-[#3c3c3c] text-[#cccccc] rounded text-[13px] hover:bg-[#454545]"
+              className="px-4 py-2 bg-[#3c3c3c] text-[#cccccc] rounded text-xs hover:bg-[#454545]"
             >
               {t('common_cancel')}
             </button>
           </div>
           {createMut.isError && (
-            <p className="mt-2 text-[12px] text-[#f48771]">
+            <p className="mt-2 text-xs text-[#f48771]">
               {t('code_error', { message: (createMut.error as Error).message })}
             </p>
           )}
@@ -298,7 +298,7 @@ function ProjectList({ onOpen }: { onOpen: (p: Project) => void }) {
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <Code2 size={48} className="text-[#3c3c3c] mb-4" />
           <p className="text-[15px] text-[#858585]">{t('code_no_projects')}</p>
-          <p className="text-[13px] text-[#5a5a5a] mt-1">{t('code_no_projects_hint')}</p>
+          <p className="text-xs text-[#5a5a5a] mt-1">{t('code_no_projects_hint')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -358,7 +358,7 @@ function ProjectCard({
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           <Folder size={20} className="text-[#c09553]" />
-          <h3 className="text-[14px] font-medium text-[#cccccc] truncate max-w-[140px]">{project.name}</h3>
+          <h3 className="text-sm font-medium text-[#cccccc] truncate max-w-[140px]">{project.name}</h3>
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); onDelete(project.id) }}
@@ -370,7 +370,7 @@ function ProjectCard({
       </div>
 
       {project.description && (
-        <p className="text-[12px] text-[#858585] mb-3 line-clamp-2">{project.description}</p>
+        <p className="text-xs text-[#858585] mb-3 line-clamp-2">{project.description}</p>
       )}
 
       <div className="flex items-center justify-between mt-auto">

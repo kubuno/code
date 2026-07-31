@@ -21,7 +21,7 @@ export function BottomPanel({ project: _project }: Props) {
           <button
             key={tab}
             onClick={() => setPanelTab(tab)}
-            className={`px-4 py-1.5 text-[12px] border-b-2 transition-colors ${
+            className={`px-4 py-1.5 text-xs border-b-2 transition-colors ${
               panelTab === tab
                 ? 'border-[#007acc] text-[#cccccc]'
                 : 'border-transparent text-[#858585] hover:text-[#cccccc]'
@@ -35,12 +35,12 @@ export function BottomPanel({ project: _project }: Props) {
       {/* Content */}
       <div className="flex-1 overflow-hidden">
         {panelTab === 'output' && (
-          <div className="h-full flex items-center justify-center text-[#858585] text-[12px]">
+          <div className="h-full flex items-center justify-center text-[#858585] text-xs">
             {t('code_no_output')}
           </div>
         )}
         {panelTab === 'problems' && (
-          <div className="h-full flex items-center justify-center text-[#858585] text-[12px]">
+          <div className="h-full flex items-center justify-center text-[#858585] text-xs">
             {t('code_no_problems')}
           </div>
         )}

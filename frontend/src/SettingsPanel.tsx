@@ -52,7 +52,7 @@ export function SettingsPanel() {
   const s = { ...DEFAULTS, ...local }
 
   if (isLoading) return (
-    <div className="flex-1 flex items-center justify-center text-[#858585] text-[12px]">
+    <div className="flex-1 flex items-center justify-center text-[#858585] text-xs">
       {t('common_loading')}
     </div>
   )
@@ -160,7 +160,7 @@ export function SettingsPanel() {
             value={s.fontFamily}
             onChange={e => update('fontFamily', e.target.value)}
             onBlur={e => update('fontFamily', e.target.value)}
-            className="w-full bg-[#3c3c3c] text-[12px] text-[#cccccc] rounded px-2 py-1.5 outline-none border border-[#555] focus:border-[#007acc] font-mono"
+            className="w-full bg-[#3c3c3c] text-xs text-[#cccccc] rounded px-2 py-1.5 outline-none border border-[#555] focus:border-[#007acc] font-mono"
           />
         </div>
 

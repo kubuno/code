@@ -36,13 +36,13 @@ export function GitPanel({ project }: Props) {
           {t('code_source_control')}
         </div>
         <div className="flex flex-col items-center justify-center flex-1 gap-3 px-4 text-center">
-          <p className="text-[12px] text-[#858585]">
+          <p className="text-xs text-[#858585]">
             {t('code_not_a_git_repo')}
           </p>
           <button
             onClick={() => initMutation.mutate()}
             disabled={initMutation.isPending}
-            className="px-3 py-1.5 bg-[#007acc] text-white text-[12px] rounded hover:bg-[#005a9e] disabled:opacity-50"
+            className="px-3 py-1.5 bg-[#007acc] text-white text-xs rounded hover:bg-[#005a9e] disabled:opacity-50"
           >
             {t('code_init_repo')}
           </button>
@@ -79,7 +79,7 @@ export function GitPanel({ project }: Props) {
       {/* Commit message */}
       <div className="px-2 pb-2">
         <textarea
-          className="w-full bg-[#3c3c3c] text-[12px] text-[#cccccc] rounded p-2 outline-none resize-none placeholder:text-[#858585] border border-transparent focus:border-[#007acc]"
+          className="w-full bg-[#3c3c3c] text-xs text-[#cccccc] rounded p-2 outline-none resize-none placeholder:text-[#858585] border border-transparent focus:border-[#007acc]"
           rows={3}
           placeholder={t('code_commit_message_placeholder')}
           value={message}
@@ -94,7 +94,7 @@ export function GitPanel({ project }: Props) {
         <button
           onClick={() => commitMutation.mutate()}
           disabled={!message.trim() || commitMutation.isPending}
-          className="mt-1 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#007acc] text-white text-[12px] rounded hover:bg-[#005a9e] disabled:opacity-50"
+          className="mt-1 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#007acc] text-white text-xs rounded hover:bg-[#005a9e] disabled:opacity-50"
         >
           <GitCommit size={13} />
           {t('code_commit')}
@@ -102,7 +102,7 @@ export function GitPanel({ project }: Props) {
       </div>
 
       {/* Changes list */}
-      <div className="flex-1 overflow-y-auto text-[12px]">
+      <div className="flex-1 overflow-y-auto text-xs">
         {allChanges.length === 0 ? (
           <div className="px-3 py-2 text-[#858585]">{t('code_no_changes')}</div>
         ) : (
