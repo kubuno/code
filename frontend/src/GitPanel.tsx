@@ -32,7 +32,8 @@ export function GitPanel({ project }: Props) {
   if (!gitStatus) {
     return (
       <div className="flex flex-col h-full">
-        <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-[#bbbbbe]">
+        {/* Panel section titles: 14px bold, no forced caps and no letter-spacing. */}
+        <div className="px-3 py-2 text-sm font-bold text-[#bbbbbe]">
           {t('code_source_control')}
         </div>
         <div className="flex flex-col items-center justify-center flex-1 gap-3 px-4 text-center">
@@ -60,7 +61,7 @@ export function GitPanel({ project }: Props) {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-[#bbbbbe]">
+      <div className="flex items-center justify-between px-3 py-2 text-sm font-bold text-[#bbbbbe]">
         <div className="flex items-center gap-1.5">
           <GitBranch size={13} />
           <span>{gitStatus.branch}</span>
@@ -136,7 +137,7 @@ export function GitPanel({ project }: Props) {
 
 function SectionHeader({ label }: { label: string }) {
   return (
-    <div className="px-3 py-1 text-[11px] text-[#bbbbbe] uppercase font-semibold tracking-wider">
+    <div className="px-3 py-1 text-sm text-[#bbbbbe] font-bold">
       {label}
     </div>
   )

@@ -42,7 +42,8 @@ export function ExtensionsPanel() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-[#bbbbbe]">
+      {/* Panel section titles: 14px bold, no forced caps and no letter-spacing. */}
+      <div className="px-3 py-2 text-sm font-bold text-[#bbbbbe]">
         {t('code_extensions')}
       </div>
 
@@ -93,7 +94,7 @@ export function ExtensionsPanel() {
           </>
         ) : (
           <>
-            <div className="px-3 py-1 text-[11px] text-[#bbbbbe] uppercase font-semibold tracking-wider">
+            <div className="px-3 py-1 text-sm text-[#bbbbbe] font-bold">
               {t('code_installed', { count: installed.length })}
             </div>
             {installed.map(ext => (

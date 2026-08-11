@@ -32,7 +32,8 @@ export function SearchPanel({ project }: Props) {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-[#bbbbbe]">
+      {/* Panel section titles: 14px bold, no forced caps and no letter-spacing. */}
+      <div className="px-3 py-2 text-sm font-bold text-[#bbbbbe]">
         {t('code_search_title')}
       </div>
 

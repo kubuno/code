@@ -25,9 +25,10 @@ export function ExplorerPanel({ project }: Props) {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
+      {/* Panel section titles: 14px bold, no forced caps and no letter-spacing. */}
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-[#bbbbbe]">
-        <span className="truncate">{project.name.toUpperCase()}</span>
+      <div className="flex items-center justify-between px-3 py-2 text-sm font-bold text-[#bbbbbe]">
+        <span className="truncate">{project.name}</span>
         <div className="flex gap-1">
           <button
             title={t('code_new_file')}

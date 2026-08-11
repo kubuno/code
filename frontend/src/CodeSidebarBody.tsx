@@ -16,7 +16,7 @@ export default function CodeSidebarBody({ collapsed = false }: { collapsed?: boo
   return (
     // Same container metrics as the core shell's sidebar nav (12px inset, 2px
     // between rows), so a code row lines up with a mail or chat row.
-    <div className={`flex flex-col gap-0.5 py-1 ${collapsed ? 'px-2' : 'px-3'}`}>
+    <div className={`flex flex-col gap-0.5 py-1 px-2`}>
       {projects.map(p => (
         <SidebarNavItem
           key={p.id}
