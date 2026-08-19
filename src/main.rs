@@ -1,11 +1,11 @@
 use anyhow::{Context, Result};
 use clap::Parser;
-use kubuno_code::{config::Settings, router, state::AppState};
+use kubuno_code::{config::{instance, Settings}, router, state::AppState};
 use reqwest::Client;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use sqlx::postgres::PgPoolOptions;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
 // ── Lecture de module.toml ────────────────────────────────────────────────────
@@ -16,6 +16,74 @@ struct Manifest {
     #[serde(default)]
     sidebar_items: Vec<SidebarItemRaw>,
     events:        Option<ManifestEvents>,
+    /// Declarative instance settings (per-file size ceiling, registry URL).
+    #[serde(default)]
+    settings:      Vec<SettingDefRaw>,
+    /// Pages the admin panel is split into (`[[setting_groups]]`).
+    #[serde(default)]
+    setting_groups: Vec<SettingGroupRaw>,
+}
+
+/// One `[[setting_groups]]` entry of module.toml, forwarded verbatim. `id` is a
+/// STABLE, UNTRANSLATED slug: it travels in the URL of the admin page.
+#[derive(Deserialize, Serialize)]
+struct SettingGroupRaw {
+    id:          String,
+    label:       String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    icon:        Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    position:    Option<i32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    description: Option<String>,
+}
+
+/// One `[[settings]]` entry from module.toml, forwarded verbatim.
+#[derive(Deserialize, Serialize)]
+struct SettingDefRaw {
+    key:         String,
+    scope:       String,
+    #[serde(rename = "type")]
+    value_type:  String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    values:      Option<serde_json::Value>,
+    default:     serde_json::Value,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    label:       Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    description: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    category:    Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    group:       Option<String>,
+    #[serde(default)]
+    public:      bool,
+
+    // Presentation metadata understood by the admin console. Every field is
+    // optional; a field missing here would be silently dropped on the way to the
+    // core, which is why they are forwarded verbatim rather than filtered.
+    /// Bounds for `type = "int"`, enforced by the console AND by the core's API.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    min:         Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    max:         Option<i64>,
+    /// Suffix shown after the field ("Mo", "s").
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    unit:        Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    placeholder: Option<String>,
+    /// "info" | "warning" | "danger" — how loudly the console warns before a change.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    risk:        Option<String>,
+    /// Folds the setting behind the section's "Avancé" disclosure.
+    #[serde(default)]
+    advanced:    bool,
+    /// The `string` value is a LIST, one entry per line → textarea.
+    #[serde(default)]
+    multiline:   bool,
+    /// Key of another `bool` setting of the SAME module; hides this one while off.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    depends_on:  Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -148,11 +216,42 @@ async fn main() -> Result<()> {
     }
 
     let http  = Client::new();
+
+    // Initial read of the admin-editable instance settings. If the core is not
+    // reachable yet, start on the compiled defaults; the background refresher
+    // below will pick up the real values as soon as the core answers.
+    let initial_instance = instance::fetch(&http, &settings.core.url, &settings.core.internal_secret)
+        .await
+        .unwrap_or_default();
+    let instance = Arc::new(RwLock::new(initial_instance));
+
     let state = AppState {
         db:       pool,
         settings: Arc::new(settings.clone()),
         http:     http.clone(),
+        instance: instance.clone(),
     };
+
+    // Refresh the instance settings every 60s so an admin edit in the console
+    // takes effect without a module restart.
+    {
+        let http3     = http.clone();
+        let settings3 = settings.clone();
+        let instance3 = instance.clone();
+        tokio::spawn(async move {
+            loop {
+                tokio::time::sleep(Duration::from_secs(60)).await;
+                if let Some(fresh) =
+                    instance::fetch(&http3, &settings3.core.url, &settings3.core.internal_secret).await
+                {
+                    match instance3.write() {
+                        Ok(mut guard) => *guard = fresh,
+                        Err(e)        => tracing::warn!(error = %e, "Verrou des réglages d'instance empoisonné"),
+                    }
+                }
+            }
+        });
+    }
 
     // Enregistrement auprès du core (avec retry infini)
     register_with_core(&http, &settings).await;
@@ -228,6 +327,15 @@ async fn register_with_core(http: &Client, settings: &Settings) {
         .map(|e| e.subscribed.clone())
         .unwrap_or_else(|| vec!["UserDeleted".into()]);
 
+    // Declarative instance settings + admin pages, forwarded so the core can render
+    // the generic form and split the admin panel into sub-menus.
+    let settings_schema: Vec<Value> = manifest.as_ref()
+        .map(|m| m.settings.iter().map(|s| serde_json::to_value(s).unwrap_or(Value::Null)).collect())
+        .unwrap_or_default();
+    let setting_groups: Vec<Value> = manifest.as_ref()
+        .map(|m| m.setting_groups.iter().map(|g| serde_json::to_value(g).unwrap_or(Value::Null)).collect())
+        .unwrap_or_default();
+
     let payload = json!({
         "module_id":         "code",
         "display_name":      display_name,
@@ -238,6 +346,8 @@ async fn register_with_core(http: &Client, settings: &Settings) {
         "routes":            [{ "method": "*", "path": "/*" }],
         "sidebar_items":     sidebar_items,
         "subscribed_events": subscribed_events,
+        "settings_schema":   settings_schema,
+        "setting_groups":    setting_groups,
     });
 
     for attempt in 1u32.. {

@@ -49,7 +49,7 @@ pub async fn read_file(
     let metadata = tokio::fs::metadata(&abs_path).await
         .map_err(|_| AppError::NotFound("Fichier introuvable".into()))?;
 
-    if metadata.len() > state.settings.code.max_file_bytes {
+    if metadata.len() > state.instance().max_file_bytes {
         return Err(AppError::FileTooLarge);
     }
 
@@ -79,7 +79,7 @@ pub async fn write_file(
     }
 
     let bytes = dto.content.as_bytes().len() as u64;
-    if bytes > state.settings.code.max_file_bytes {
+    if bytes > state.instance().max_file_bytes {
         return Err(AppError::FileTooLarge);
     }
 

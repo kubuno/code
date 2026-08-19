@@ -36,6 +36,41 @@ pub async fn create(
         return Err(AppError::Validation("Nom de projet invalide".into()));
     }
 
+    let instance = state.instance();
+
+    // Per-user ceiling set by the administrator. Checked BEFORE anything is
+    // created on disk or in the drive module, so a refusal leaves nothing behind.
+    // `0` means "no limit", the shipped behaviour, and skips the count entirely.
+    if instance.max_projects_per_user > 0 {
+        let count: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM code.projects WHERE user_id = $1",
+        )
+        .bind(user.user_id)
+        .fetch_one(&state.db)
+        .await
+        .map_err(|e| {
+            tracing::error!(error = %e, user_id = %user.user_id, "Comptage des projets");
+            AppError::from(e)
+        })?;
+
+        if count as u64 >= instance.max_projects_per_user {
+            return Err(AppError::Validation(format!(
+                "Nombre maximal de projets atteint ({})",
+                instance.max_projects_per_user
+            )));
+        }
+    }
+
+    // The remote is validated before the project directory is provisioned: a
+    // refused clone must not leave an empty folder (or a drive entry) behind.
+    if let Some(ref remote) = dto.git_clone {
+        validate_git_remote(
+            remote,
+            instance.allow_git_clone,
+            &instance.git_clone_allowed_hosts,
+        )?;
+    }
+
     // Résolution du chemin et du files_folder_id selon le type de stockage choisi
     let (project_path, files_folder_id) = match dto.storage {
         ProjectStorage::Files => {
@@ -91,9 +126,8 @@ pub async fn create(
         }
     };
 
-    // Clone ou crée le répertoire
+    // Clone ou crée le répertoire (l'URL distante a déjà été validée plus haut).
     if let Some(ref remote) = dto.git_clone {
-        validate_git_remote(remote)?;
         tokio::task::spawn_blocking({
             let path   = project_path.clone();
             let remote = remote.clone();
@@ -209,12 +243,29 @@ pub async fn delete(
 /// Valide une URL de clone Git fournie par l'utilisateur.
 ///
 /// Bloque :
+/// - le clonage distant entièrement, si l'administrateur l'a désactivé ;
 /// - les schémas autres que `https` (interdit `file://`, `ssh://`, `git://`,
 ///   `ext::…`, chemins locaux) — empêche la lecture de fichiers locaux et
 ///   l'exécution de transports arbitraires ;
 /// - les hôtes loopback / privés / link-local / localhost — empêche le SSRF vers
-///   les services internes et les endpoints de métadonnées cloud (169.254.169.254).
-fn validate_git_remote(remote: &str) -> Result<(), AppError> {
+///   les services internes et les endpoints de métadonnées cloud (169.254.169.254) ;
+/// - tout hôte absent de l'allowlist d'instance, quand elle est renseignée.
+///
+/// ORDER MATTERS. The allowlist is the LAST test, applied on top of every
+/// built-in refusal above it — it can only narrow what is reachable, never widen
+/// it. Listing a private address or a non-https URL therefore still fails: an
+/// administrator cannot accidentally re-open an SSRF path by filling this field.
+fn validate_git_remote(
+    remote: &str,
+    allow_git_clone: bool,
+    allowed_hosts: &[String],
+) -> Result<(), AppError> {
+    if !allow_git_clone {
+        return Err(AppError::Validation(
+            "Le clonage de dépôts distants est désactivé sur cette instance".into(),
+        ));
+    }
+
     let url = reqwest::Url::parse(remote)
         .map_err(|_| AppError::Validation("URL de dépôt Git invalide".into()))?;
 
@@ -270,7 +321,55 @@ fn validate_git_remote(remote: &str) -> Result<(), AppError> {
         }
     }
 
+    // Instance allowlist, applied last so it only ever narrows the above.
+    if !crate::config::instance::host_is_allowed(host, allowed_hosts) {
+        return Err(AppError::Validation(format!(
+            "L'hôte « {host} » ne figure pas dans la liste des dépôts autorisés par cette instance"
+        )));
+    }
+
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The allowlist must never be able to re-open a path the built-in refusals
+    /// close: every hardened case stays refused even when the host is listed.
+    #[test]
+    fn allowlist_never_widens_the_builtin_refusals() {
+        let listed = vec!["localhost".to_string(), "169.254.169.254".to_string(), "example.com".to_string()];
+
+        // Non-https scheme, host explicitly listed.
+        assert!(validate_git_remote("ssh://example.com/repo.git", true, &listed).is_err());
+        assert!(validate_git_remote("file:///etc/passwd", true, &listed).is_err());
+        // Private / metadata addresses, explicitly listed.
+        assert!(validate_git_remote("https://localhost/repo.git", true, &listed).is_err());
+        assert!(validate_git_remote("https://169.254.169.254/repo.git", true, &listed).is_err());
+        assert!(validate_git_remote("https://192.168.1.10/repo.git", true, &listed).is_err());
+    }
+
+    #[test]
+    fn allowlist_narrows_public_hosts() {
+        let list = vec!["github.com".to_string()];
+        assert!(validate_git_remote("https://github.com/o/r.git", true, &list).is_ok());
+        assert!(validate_git_remote("https://api.github.com/o/r.git", true, &list).is_ok());
+        assert!(validate_git_remote("https://gitlab.com/o/r.git", true, &list).is_err());
+        // The label-boundary bypass stays closed.
+        assert!(validate_git_remote("https://evilgithub.com/o/r.git", true, &list).is_err());
+    }
+
+    #[test]
+    fn an_empty_allowlist_keeps_the_shipped_behaviour() {
+        assert!(validate_git_remote("https://github.com/o/r.git", true, &[]).is_ok());
+        assert!(validate_git_remote("https://127.0.0.1/r.git", true, &[]).is_err());
+    }
+
+    #[test]
+    fn cloning_can_be_turned_off_entirely() {
+        assert!(validate_git_remote("https://github.com/o/r.git", false, &[]).is_err());
+    }
 }
 
 /// Résout le base_url IPC du module drive.

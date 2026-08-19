@@ -29,6 +29,82 @@ path     = "/code"
 position = 60
 section  = "main"
 
+[[setting_groups]]
+id       = "limits"
+label    = "Limites"
+icon     = "Gauge"
+position = 10
+
+[[setting_groups]]
+id          = "repositories"
+label       = "Dépôts distants"
+icon        = "GitBranch"
+position    = 20
+description = "Ce que l'instance accepte de cloner depuis l'extérieur. Ce module n'exécute aucun code : le clonage est la seule connexion sortante qu'il ouvre pour le compte d'un utilisateur."
+
+# Ceiling on the size of a single file opened or saved in the editor, in BYTES.
+# Applied on both read and write in handlers::files. Default = 8 MiB (8388608).
+[[settings]]
+key         = "max_file_bytes"
+scope       = "global"
+type        = "int"
+group       = "limits"
+default     = 8388608
+min         = 1
+max         = 1073741824
+unit        = "octets"
+label       = "Taille maximale d'un fichier (octets)"
+description = "Plafond, en octets, de la taille d'un fichier ouvert ou enregistré dans l'éditeur. Défaut : 8 Mio (8388608)."
+
+# Base URL of the VS Code extension registry (Open VSX API by default).
+[[settings]]
+key         = "extension_registry_url"
+scope       = "global"
+type        = "string"
+group       = "limits"
+default     = "https://open-vsx.org/api"
+label       = "URL du registre d'extensions"
+description = "Point d'accès de l'API du registre d'extensions (Open VSX par défaut). Une valeur vide conserve le registre par défaut."
+
+# Per-user ceiling on owned projects, enforced in handlers::projects::create.
+[[settings]]
+key         = "max_projects_per_user"
+scope       = "global"
+type        = "int"
+group       = "limits"
+default     = 0
+min         = 0
+max         = 100000
+label       = "Nombre maximal de projets par utilisateur"
+description = "Plafond du nombre de projets qu'un utilisateur peut posséder. 0 = illimité."
+
+# ── Dépôts distants ─────────────────────────────────────────────────────────────
+# Le clonage reste soumis, EN PLUS de ces réglages, aux refus intégrés : seul
+# https:// est accepté, et les adresses loopback/privées/link-local (dont les
+# points de métadonnées cloud) sont rejetées. L'allowlist ne fait que RESTREINDRE
+# davantage : elle ne peut jamais rouvrir un chemin fermé par ces refus.
+[[settings]]
+key         = "allow_git_clone"
+scope       = "global"
+type        = "bool"
+group       = "repositories"
+default     = true
+label       = "Autoriser le clonage de dépôts distants"
+description = "Permet de créer un projet à partir d'une URL de dépôt Git. Désactivé, l'instance n'ouvre plus aucune connexion sortante pour le compte d'un utilisateur."
+
+[[settings]]
+key         = "git_clone_allowed_hosts"
+scope       = "global"
+type        = "string"
+group       = "repositories"
+default     = ""
+multiline   = true
+risk        = "warning"
+depends_on  = "allow_git_clone"
+placeholder = "github.com\ngitlab.example.org"
+label       = "Hôtes de dépôts autorisés"
+description = "Un hôte par ligne. Une entrée couvre l'hôte et ses sous-domaines (« github.com » autorise « api.github.com », mais jamais « evilgithub.com »). Laisser vide n'impose aucune restriction d'hôte. Les lignes commençant par # sont ignorées ; une URL complète ou un port sont acceptés et normalisés."
+
 [events]
 subscribed = ["UserDeleted"]
 publishes  = []

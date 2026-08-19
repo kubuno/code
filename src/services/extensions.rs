@@ -13,7 +13,7 @@ pub async fn search_registry(
 ) -> Result<Vec<ExtensionMarketEntry>, AppError> {
     let url = format!(
         "{}/-/search?query={}&size=20&sortBy=installs&sortOrder=desc",
-        state.settings.code.extension_registry_url,
+        state.instance().extension_registry_url,
         urlencoding_simple(query),
     );
 
@@ -87,7 +87,7 @@ pub async fn install(
 
     let vsix_url = format!(
         "{}/{}/{}/{}/file/{}.{}-{}.vsix",
-        state.settings.code.extension_registry_url,
+        state.instance().extension_registry_url,
         dto.publisher,
         dto.name,
         version,
@@ -238,7 +238,7 @@ fn extract_vsix(bytes: &[u8], dest: &std::path::Path) -> Result<serde_json::Valu
 async fn latest_version(state: &AppState, publisher: &str, name: &str) -> Result<String, AppError> {
     let url = format!(
         "{}/{}/{}",
-        state.settings.code.extension_registry_url,
+        state.instance().extension_registry_url,
         publisher,
         name,
     );
