@@ -6,17 +6,7 @@
  * `sdkVersion` permet de rejeter une incompatibilité de contrat.
  */
 import { lazy } from 'react'
-import {
-  RouteRegistry,
-  WaffleAppRegistry,
-  WidgetRegistry,
-  SlotRegistry,
-  FaviconRegistry,
-  ModuleSettingsRegistry,
-  useSidebarStore,
-  useToolbarStore,
-  SDK_VERSION,
-} from '@kubuno/sdk'
+import { RouteRegistry, WaffleAppRegistry, WidgetRegistry, SlotRegistry, FaviconRegistry, ModuleSettingsRegistry, useSidebarStore, useToolbarStore, SDK_VERSION } from '@kubuno/sdk'
 import './index.css'
 import './i18n'
 import './monacoSetup'
@@ -28,7 +18,7 @@ import CodeOpenWithAction, { isCodeFile } from './CodeOpenWithAction'
 export const sdkVersion = SDK_VERSION
 
 export function register() {
-  FaviconRegistry.register('code', '/code-logo.svg')
+  FaviconRegistry.register('code', '/code-logo.png')
 
   WaffleAppRegistry.register('code', 'Code', [
     { id: 'code', label: 'Code', Icon: CodeLogo, path: '/code' },

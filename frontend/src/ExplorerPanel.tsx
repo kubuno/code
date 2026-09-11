@@ -1,3 +1,4 @@
+import { cn } from '@ui'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -11,7 +12,6 @@ import {
 import { useCodeStore } from './store'
 import { codeApi } from './api'
 import type { FileNode, Project } from './api'
-import clsx from 'clsx'
 import { getLanguageFromPath } from './utils'
 
 interface Props {
@@ -106,7 +106,7 @@ function FileTreeNode({ node, depth, project, activeTabPath, onOpenFile }: NodeP
   return (
     <div>
       <div
-        className={clsx(
+        className={cn(
           'flex items-center gap-1 px-2 py-0.5 cursor-pointer select-none group',
           'hover:bg-[#2a2d2e]',
           isActive && 'bg-[#37373d]',

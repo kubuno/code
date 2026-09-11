@@ -11,7 +11,10 @@ import { useModulePrefs } from './userPrefs'
 // These mirror the most common Monaco editor options. They feed the editor by
 // being merged on top of the module's own `code.user_settings` (see EditorArea).
 
-export interface CodePrefs {
+// A `type` (not `interface`) so it satisfies the `Record<string, unknown>`
+// constraint of `useModulePrefs` — object type aliases carry an implicit
+// index signature for assignability; interfaces do not.
+export type CodePrefs = {
   theme:           string   // 'vs-dark' | 'vs' | 'hc-black'
   fontSize:        string   // '12' | '13' | '14' | '16' | '18'
   tabSize:         string   // '2' | '4' | '8'

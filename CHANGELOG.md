@@ -9,22 +9,20 @@ number at release time, and CI publishes that section as the GitHub Release note
 
 ## [Unreleased]
 
-
 ### Changed
 
 
 
-- **The RPM package now names the same maintainer as the Debian one.** Its
-  changelog entry read `Kubuno Contributors <contact@kubuno.io>`, an address on
-  a domain the project does not use; it now reads
-  `Martinien OLINGA <kubuno@martinienolinga.com>`, matching the `.deb`. Nothing
-  about what the package installs changes.
-
-- **The package maintainer address moved to the project's own domain.** The
-  Debian package's `Maintainer` field now reads
-  `Martinien OLINGA <kubuno@martinienolinga.com>`. Nothing about what the
-  package installs changes.
-
+- **Dates are formatted by the platform now, not by a library.** `date-fns` is
+  gone from this module: the shared SDK exposes helpers built on `Intl`, which is
+  localised for every language we ship and needs no locale bundle loaded. Call
+  sites say what a date is FOR — `formatDate(d, 'date')` — and the platform
+  decides how to write it, so a reader in Japanese no longer gets a French
+  layout. Machine formats (keys, `<input type="date">` values) go through
+  `toISODate` and friends, built from local calendar fields so the day cannot
+  shift near midnight.
+- **Class names are composed by `cn()` from `@ui`**, replacing `clsx`. One less
+  dependency for a dozen lines of finished logic; call sites are unchanged.
 - **The README now opens with the module's logo.** The public README on
   GitHub now shows the module's designer logo (the same PNG shown as the
   browser tab icon and in the applications menu) at the top of the page — the
@@ -32,6 +30,52 @@ number at release time, and CI publishes that section as the GitHub Release note
   platform. The image ships in-repo, under `.github/logo.png`, so it renders
   even when the repo is browsed offline.
 
+- **New Code logo** — a dark hexagon with a white ribbon/chevron mark, used
+  as the browser-tab icon and in the applications menu. It is now raster (PNG)
+  designer artwork.
+
+
+
+
+### Fixed
+
+- **The editor and its settings page type-check again.** The per-user
+  preferences type was declared as an `interface`, which no longer satisfied the
+  shared hook's `Record<string, unknown>` constraint after the SDK update, so the
+  build failed. It is now a `type` alias, which carries the index signature the
+  constraint expects; behaviour is unchanged.
+- **The package could not be built where `zip` is absent.** The Windows job of
+  the continuous integration has no `zip`, so the Windows package was simply lost
+  the first time it was attempted — a script failure, not a build failure. The
+  builder now falls back to 7-Zip, then to PowerShell.
+### Added
+
+- **This module now ships a `.kbpkg`** — the single package format a Kubuno
+  server installs by itself, the same file on Linux, Windows and macOS. It
+  carries the same binary, interface and manifest as the system packages,
+  arranged the way the server expects to find a module on disk, plus a
+  `SHA256SUMS` so a copy carried offline can be checked without the catalogue.
+  Nothing changes for existing installations: the `.deb`, `.rpm`, `.exe` and
+  `.pkg` are still published, and a catalogue that sees both simply prefers the
+  new one. It is also the only format the server can unpack without an external
+  tool, which is what makes one-click installation possible away from
+  Debian-like systems.
+### Fixed
+
+- **A built package could be thrown away instead of published.** The job that
+  attaches a package to the release waited ten minutes for another workflow to
+  create that release, then gave up with "release never appeared — build.yml
+  likely failed". The diagnosis was wrong: on a repository whose `.deb` takes
+  longer than ten minutes to build, the release simply did not exist yet, and a
+  package that had built perfectly was discarded. Four modules reached v0.1.6
+  with packages missing for some systems because of it. The job now creates the
+  release itself when it is missing, so it no longer depends on another workflow
+  finishing first.
+### Added
+
+- **Security policy and CI quality gate.** A `SECURITY.md` documents how to
+  report vulnerabilities, and a CI workflow enforces `clippy -D warnings`, a
+  dependency-vulnerability audit (`cargo audit`) and the frontend typecheck/tests.
 
 ## [0.1.6] - 2026-08-19
 

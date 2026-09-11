@@ -1,3 +1,4 @@
+import { cn } from '@ui'
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
@@ -8,7 +9,6 @@ import { codeApi } from './api'
 import type { Project } from './api'
 import { useModulePrefs } from './userPrefs'
 import { DEFAULT_PREFS, type CodePrefs } from './CodeSettingsPage'
-import clsx from 'clsx'
 import type { editor } from 'monaco-editor'
 
 interface Props {
@@ -68,7 +68,7 @@ export function EditorArea({ onSave: _onSave }: Props) {
           <div
             key={tab.path}
             onClick={() => setActiveTab(tab.path)}
-            className={clsx(
+            className={cn(
               'flex items-center gap-2 px-4 py-2 cursor-pointer shrink-0 border-r border-[#1e1e1e] text-xs whitespace-nowrap group',
               tab.path === activeTabPath
                 ? 'bg-[#1e1e1e] text-[#cccccc] border-t-2 border-t-[#007acc]'

@@ -1,7 +1,7 @@
+import { cn } from '@ui'
 import { Files, Search, GitBranch, Puzzle, Settings } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useCodeStore } from './store'
-import clsx from 'clsx'
 
 
 const PANELS = [
@@ -27,7 +27,7 @@ export function ActivityBar() {
             key={id}
             title={t(titleKey)}
             onClick={() => setSidebarPanel(id)}
-            className={clsx(
+            className={cn(
               'relative w-10 h-10 flex items-center justify-center rounded transition-colors',
               sidebarPanel === id
                 ? 'text-white bg-[#37373d]'

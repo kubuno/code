@@ -1,9 +1,8 @@
+import { formatDate } from '@kubuno/sdk'
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { format } from 'date-fns'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
-import { getDateLocale } from '@kubuno/sdk'
 import { useConfirm } from '@kubuno/sdk'
 import { ConfirmDialog } from '@ui'
 import { Plus, Folder, Clock, GitBranch, Code2, Trash2, FolderOpen, HardDrive, Files } from 'lucide-react'
@@ -394,7 +393,7 @@ function ProjectCard({
         {project.last_opened_at && (
           <span className="flex items-center gap-1 text-[11px] text-[#5a5a5a]">
             <Clock size={11} />
-            {format(new Date(project.last_opened_at), 'd MMM', { locale: getDateLocale(i18n.language) })}
+            {formatDate(new Date(project.last_opened_at), 'date')}
           </span>
         )}
       </div>
