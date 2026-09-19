@@ -331,46 +331,6 @@ fn validate_git_remote(
     Ok(())
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    /// The allowlist must never be able to re-open a path the built-in refusals
-    /// close: every hardened case stays refused even when the host is listed.
-    #[test]
-    fn allowlist_never_widens_the_builtin_refusals() {
-        let listed = vec!["localhost".to_string(), "169.254.169.254".to_string(), "example.com".to_string()];
-
-        // Non-https scheme, host explicitly listed.
-        assert!(validate_git_remote("ssh://example.com/repo.git", true, &listed).is_err());
-        assert!(validate_git_remote("file:///etc/passwd", true, &listed).is_err());
-        // Private / metadata addresses, explicitly listed.
-        assert!(validate_git_remote("https://localhost/repo.git", true, &listed).is_err());
-        assert!(validate_git_remote("https://169.254.169.254/repo.git", true, &listed).is_err());
-        assert!(validate_git_remote("https://192.168.1.10/repo.git", true, &listed).is_err());
-    }
-
-    #[test]
-    fn allowlist_narrows_public_hosts() {
-        let list = vec!["github.com".to_string()];
-        assert!(validate_git_remote("https://github.com/o/r.git", true, &list).is_ok());
-        assert!(validate_git_remote("https://api.github.com/o/r.git", true, &list).is_ok());
-        assert!(validate_git_remote("https://gitlab.com/o/r.git", true, &list).is_err());
-        // The label-boundary bypass stays closed.
-        assert!(validate_git_remote("https://evilgithub.com/o/r.git", true, &list).is_err());
-    }
-
-    #[test]
-    fn an_empty_allowlist_keeps_the_shipped_behaviour() {
-        assert!(validate_git_remote("https://github.com/o/r.git", true, &[]).is_ok());
-        assert!(validate_git_remote("https://127.0.0.1/r.git", true, &[]).is_err());
-    }
-
-    #[test]
-    fn cloning_can_be_turned_off_entirely() {
-        assert!(validate_git_remote("https://github.com/o/r.git", false, &[]).is_err());
-    }
-}
 
 /// Résout le base_url IPC du module drive.
 /// Priorité : config explicite → découverte depuis le registre du core.
@@ -416,4 +376,45 @@ async fn fetch_owned(state: &AppState, user_id: Uuid, id: Uuid) -> Result<Projec
         return Err(AppError::Forbidden);
     }
     Ok(p)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The allowlist must never be able to re-open a path the built-in refusals
+    /// close: every hardened case stays refused even when the host is listed.
+    #[test]
+    fn allowlist_never_widens_the_builtin_refusals() {
+        let listed = vec!["localhost".to_string(), "169.254.169.254".to_string(), "example.com".to_string()];
+
+        // Non-https scheme, host explicitly listed.
+        assert!(validate_git_remote("ssh://example.com/repo.git", true, &listed).is_err());
+        assert!(validate_git_remote("file:///etc/passwd", true, &listed).is_err());
+        // Private / metadata addresses, explicitly listed.
+        assert!(validate_git_remote("https://localhost/repo.git", true, &listed).is_err());
+        assert!(validate_git_remote("https://169.254.169.254/repo.git", true, &listed).is_err());
+        assert!(validate_git_remote("https://192.168.1.10/repo.git", true, &listed).is_err());
+    }
+
+    #[test]
+    fn allowlist_narrows_public_hosts() {
+        let list = vec!["github.com".to_string()];
+        assert!(validate_git_remote("https://github.com/o/r.git", true, &list).is_ok());
+        assert!(validate_git_remote("https://api.github.com/o/r.git", true, &list).is_ok());
+        assert!(validate_git_remote("https://gitlab.com/o/r.git", true, &list).is_err());
+        // The label-boundary bypass stays closed.
+        assert!(validate_git_remote("https://evilgithub.com/o/r.git", true, &list).is_err());
+    }
+
+    #[test]
+    fn an_empty_allowlist_keeps_the_shipped_behaviour() {
+        assert!(validate_git_remote("https://github.com/o/r.git", true, &[]).is_ok());
+        assert!(validate_git_remote("https://127.0.0.1/r.git", true, &[]).is_err());
+    }
+
+    #[test]
+    fn cloning_can_be_turned_off_entirely() {
+        assert!(validate_git_remote("https://github.com/o/r.git", false, &[]).is_err());
+    }
 }

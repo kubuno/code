@@ -78,7 +78,7 @@ pub async fn write_file(
         tokio::fs::create_dir_all(parent).await?;
     }
 
-    let bytes = dto.content.as_bytes().len() as u64;
+    let bytes = dto.content.len() as u64;
     if bytes > state.instance().max_file_bytes {
         return Err(AppError::FileTooLarge);
     }

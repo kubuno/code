@@ -17,15 +17,12 @@ pub struct Project {
     pub updated_at:      DateTime<Utc>,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Default, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum ProjectStorage {
+    #[default]
     Local,  // répertoire sous projects_root (comportement par défaut)
     Files,  // dossier créé dans le module files (visible depuis l'explorateur)
-}
-
-impl Default for ProjectStorage {
-    fn default() -> Self { Self::Local }
 }
 
 #[derive(Debug, Deserialize)]

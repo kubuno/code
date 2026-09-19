@@ -21,8 +21,7 @@ pub async fn status(
     let root = project_root(&state, user.user_id, project_id).await?;
     let status = tokio::task::spawn_blocking(move || git_svc::status(&root))
         .await
-        .map_err(|e| AppError::Internal(anyhow::anyhow!(e)))?
-        .map_err(AppError::from)?;
+        .map_err(|e| AppError::Internal(anyhow::anyhow!(e)))??;
     Ok(Json(status))
 }
 
@@ -34,8 +33,7 @@ pub async fn diff(
     let root = project_root(&state, user.user_id, project_id).await?;
     let diff = tokio::task::spawn_blocking(move || git_svc::diff_file(&root, &tail))
         .await
-        .map_err(|e| AppError::Internal(anyhow::anyhow!(e)))?
-        .map_err(AppError::from)?;
+        .map_err(|e| AppError::Internal(anyhow::anyhow!(e)))??;
     Ok(diff)
 }
 
@@ -53,8 +51,7 @@ pub async fn commit(
     let name  = user.email.split('@').next().unwrap_or("Kubuno User").to_string();
     tokio::task::spawn_blocking(move || git_svc::commit(&root, &dto.message, &name, &email, &dto.files))
         .await
-        .map_err(|e| AppError::Internal(anyhow::anyhow!(e)))?
-        .map_err(AppError::from)?;
+        .map_err(|e| AppError::Internal(anyhow::anyhow!(e)))??;
     Ok(StatusCode::NO_CONTENT)
 }
 
@@ -66,8 +63,7 @@ pub async fn init(
     let root = project_root(&state, user.user_id, project_id).await?;
     tokio::task::spawn_blocking(move || git_svc::init(&root))
         .await
-        .map_err(|e| AppError::Internal(anyhow::anyhow!(e)))?
-        .map_err(AppError::from)?;
+        .map_err(|e| AppError::Internal(anyhow::anyhow!(e)))??;
     Ok(StatusCode::NO_CONTENT)
 }
 
