@@ -4,8 +4,9 @@ use serde_json::{json, Value};
 use crate::state::AppState;
 
 pub async fn health(State(state): State<AppState>) -> Json<Value> {
-    let db_ok = sqlx::query_scalar::<_, i32>("SELECT 1")
-        .fetch_one(&state.db)
+    let db_ok = state
+        .db
+        .fetch_scalar::<i32>("SELECT 1", kubuno_db::params![])
         .await
         .is_ok();
 

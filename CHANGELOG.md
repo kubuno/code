@@ -9,6 +9,17 @@ number at release time, and CI publishes that section as the GitHub Release note
 
 ## [Unreleased]
 
+### Added
+
+- **Choose your database engine.** The module now runs on **PostgreSQL**,
+  **MySQL/MariaDB** or **SQLite**, selected at start-up from the `[database]`
+  configuration (`engine = "postgres" | "mysql" | "sqlite"`, or `KUBUNO_DB_ENGINE`).
+  A single build ships all three drivers and picks one at run time; SQLite needs
+  no server (a file under `database.path`), which makes a small or single-user
+  install self-contained. Existing PostgreSQL instances are unaffected: the
+  PostgreSQL migrations are byte-for-byte the ones already applied, so nothing
+  re-runs on upgrade.
+
 ### Security
 
 - **Input validation library updated.** The version in use carried

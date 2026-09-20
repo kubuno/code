@@ -147,14 +147,14 @@ async fn project_root(
     user_id: Uuid,
     project_id: Uuid,
 ) -> Result<std::path::PathBuf, AppError> {
-    let path: String = sqlx::query_scalar(
-        "SELECT path FROM code.projects WHERE id = $1 AND user_id = $2",
-    )
-    .bind(project_id)
-    .bind(user_id)
-    .fetch_optional(&state.db)
-    .await?
-    .ok_or_else(|| AppError::NotFound("Projet introuvable".into()))?;
+    let path: String = state
+        .db
+        .fetch_optional_scalar::<String>(
+            "SELECT path FROM code.projects WHERE id = $1 AND user_id = $2",
+            kubuno_db::params![project_id, user_id],
+        )
+        .await?
+        .ok_or_else(|| AppError::NotFound("Projet introuvable".into()))?;
 
     Ok(std::path::PathBuf::from(path))
 }

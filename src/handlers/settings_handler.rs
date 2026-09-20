@@ -2,6 +2,9 @@ use axum::{
     extract::{Extension, State},
     Json,
 };
+use chrono::Utc;
+use kubuno_db::dialect::Assign;
+use kubuno_db::params;
 use crate::{
     errors::AppError,
     middleware::AuthUser,
@@ -13,16 +16,19 @@ pub async fn get_settings(
     State(state): State<AppState>,
     Extension(user): Extension<AuthUser>,
 ) -> Result<Json<UserEditorSettings>, AppError> {
-    let settings = sqlx::query_as::<_, UserEditorSettings>(
-        "SELECT * FROM code.user_settings WHERE user_id = $1",
-    )
-    .bind(user.user_id)
-    .fetch_optional(&state.db)
-    .await?
-    .unwrap_or_else(|| UserEditorSettings {
-        user_id:  user.user_id,
-        settings: serde_json::json!({}),
-    });
+    // Only the columns the struct decodes: `updated_at` is not part of it, and
+    // `SELECT *` would hand sqlx a column with no field to bind it to.
+    let settings = state
+        .db
+        .fetch_optional_as::<UserEditorSettings>(
+            "SELECT user_id, settings FROM code.user_settings WHERE user_id = $1",
+            params![user.user_id],
+        )
+        .await?
+        .unwrap_or_else(|| UserEditorSettings {
+            user_id:  user.user_id,
+            settings: serde_json::json!({}),
+        });
 
     Ok(Json(settings))
 }
@@ -32,16 +38,32 @@ pub async fn update_settings(
     Extension(user): Extension<AuthUser>,
     Json(body): Json<serde_json::Value>,
 ) -> Result<Json<UserEditorSettings>, AppError> {
-    let settings = sqlx::query_as::<_, UserEditorSettings>(
-        "INSERT INTO code.user_settings (user_id, settings)
-         VALUES ($1, $2)
-         ON CONFLICT (user_id) DO UPDATE SET settings = $2, updated_at = NOW()
-         RETURNING *",
-    )
-    .bind(user.user_id)
-    .bind(&body)
-    .fetch_one(&state.db)
-    .await?;
+    // Upsert on the primary key. `updated_at` is bound from the process rather
+    // than `NOW()` (spelled differently on each engine), and the conflict branch
+    // re-uses the *incoming* row (`excluded` / `VALUES`) instead of re-binding a
+    // placeholder, which the runtime rejects.
+    let backend = state.db.backend();
+    let now = Utc::now();
+    let insert = format!(
+        "INSERT INTO code.user_settings (user_id, settings, updated_at) VALUES ($1, $2, $3){}",
+        backend.upsert(
+            "user_settings",
+            &["user_id"],
+            &[Assign::Incoming("settings"), Assign::Incoming("updated_at")],
+        )
+    );
+    state
+        .db
+        .execute(&insert, params![user.user_id, body, now])
+        .await?;
+
+    let settings = state
+        .db
+        .fetch_one_as::<UserEditorSettings>(
+            "SELECT user_id, settings FROM code.user_settings WHERE user_id = $1",
+            params![user.user_id],
+        )
+        .await?;
 
     Ok(Json(settings))
 }

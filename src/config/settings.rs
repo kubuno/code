@@ -1,6 +1,5 @@
 use config::{Config, ConfigError, Environment, File};
 use serde::Deserialize;
-use std::time::Duration;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Settings {
@@ -23,30 +22,10 @@ pub struct CoreSettings {
     pub internal_secret: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
-pub struct DatabaseSettings {
-    pub host:            String,
-    pub port:            u16,
-    pub user:            String,
-    pub password:        String,
-    pub database:        String,
-    pub max_connections: u32,
-    pub min_connections: u32,
-    #[serde(with = "duration_secs")]
-    pub connect_timeout: Duration,
-    pub run_migrations:  bool,
-}
-
-impl DatabaseSettings {
-    pub fn connect_options(&self) -> anyhow::Result<sqlx::postgres::PgConnectOptions> {
-        Ok(sqlx::postgres::PgConnectOptions::new()
-            .host(&self.host)
-            .port(self.port)
-            .username(&self.user)
-            .password(&self.password)
-            .database(&self.database))
-    }
-}
+/// The `[database]` section is owned by kubuno-db: which of its fields matter
+/// depends on the engine the administrator selects at run time, and the pool is
+/// opened by `kubuno_db::connect`.
+pub use kubuno_db::DbSettings as DatabaseSettings;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct CodeSettings {
@@ -76,11 +55,14 @@ impl Settings {
             .set_default("server.port", 3112i64)?
             .set_default("core.url", "http://127.0.0.1:8080")?
             .set_default("core.internal_secret", "")?
+            .set_default("database.engine", "postgres")?
             .set_default("database.host", "localhost")?
             .set_default("database.port", 5432i64)?
             .set_default("database.user", "kubuno")?
             .set_default("database.password", "")?
             .set_default("database.database", "kubuno")?
+            // SQLite only: the directory holding `<schema>.sqlite`.
+            .set_default("database.path", "/var/lib/kubuno/modules/code/data")?
             .set_default("database.max_connections", 10i64)?
             .set_default("database.min_connections", 1i64)?
             .set_default("database.connect_timeout", 10i64)?
@@ -106,17 +88,9 @@ impl Settings {
         if let Ok(v) = std::env::var("KUBUNO_DB_USER")         { builder = builder.set_override("database.user",     v)?; }
         if let Ok(v) = std::env::var("KUBUNO_DB_PASSWORD")     { builder = builder.set_override("database.password", v)?; }
         if let Ok(v) = std::env::var("KUBUNO_DB_NAME")         { builder = builder.set_override("database.database", v)?; }
+        if let Ok(v) = std::env::var("KUBUNO_DB_ENGINE")       { builder = builder.set_override("database.engine",   v)?; }
+        if let Ok(v) = std::env::var("KUBUNO_DB_PATH")         { builder = builder.set_override("database.path",     v)?; }
 
         builder.build()?.try_deserialize()
-    }
-}
-
-mod duration_secs {
-    use serde::{Deserialize, Deserializer};
-    use std::time::Duration;
-    pub fn deserialize<'de, D>(d: D) -> Result<Duration, D::Error>
-    where D: Deserializer<'de> {
-        let secs = u64::deserialize(d)?;
-        Ok(Duration::from_secs(secs))
     }
 }

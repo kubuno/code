@@ -3,6 +3,7 @@ use axum::{
     http::StatusCode,
     Json,
 };
+use kubuno_db::params;
 use uuid::Uuid;
 
 use crate::{
@@ -17,12 +18,13 @@ pub async fn list(
     State(state): State<AppState>,
     Extension(user): Extension<AuthUser>,
 ) -> Result<Json<Vec<Ext>>, AppError> {
-    let exts = sqlx::query_as::<_, Ext>(
-        "SELECT * FROM code.extensions WHERE user_id = $1 ORDER BY installed_at DESC",
-    )
-    .bind(user.user_id)
-    .fetch_all(&state.db)
-    .await?;
+    let exts = state
+        .db
+        .fetch_all_as::<Ext>(
+            "SELECT * FROM code.extensions WHERE user_id = $1 ORDER BY installed_at DESC",
+            params![user.user_id],
+        )
+        .await?;
 
     Ok(Json(exts))
 }
@@ -46,15 +48,18 @@ pub async fn install(
         return Err(AppError::Validation("publisher et name sont requis".into()));
     }
 
-    // Vérifier qu'elle n'est pas déjà installée
-    let exists: bool = sqlx::query_scalar(
-        "SELECT EXISTS(SELECT 1 FROM code.extensions WHERE user_id = $1 AND publisher = $2 AND name = $3)",
-    )
-    .bind(user.user_id)
-    .bind(&dto.publisher)
-    .bind(&dto.name)
-    .fetch_one(&state.db)
-    .await?;
+    // Vérifier qu'elle n'est pas déjà installée. `SELECT 1 ... LIMIT 1` decoded
+    // as an optional scalar is portable across the three engines, where
+    // `SELECT EXISTS(...)` returns a boolean on PostgreSQL but an integer on
+    // MySQL/SQLite.
+    let exists = state
+        .db
+        .fetch_optional_scalar::<i32>(
+            "SELECT 1 FROM code.extensions WHERE user_id = $1 AND publisher = $2 AND name = $3 LIMIT 1",
+            params![user.user_id, &dto.publisher, &dto.name],
+        )
+        .await?
+        .is_some();
 
     if exists {
         return Err(AppError::Conflict("Extension déjà installée".into()));
@@ -69,22 +74,22 @@ pub async fn uninstall(
     Extension(user): Extension<AuthUser>,
     Path(id): Path<Uuid>,
 ) -> Result<StatusCode, AppError> {
-    let ext: Option<Ext> = sqlx::query_as(
-        "SELECT * FROM code.extensions WHERE id = $1 AND user_id = $2",
-    )
-    .bind(id)
-    .bind(user.user_id)
-    .fetch_optional(&state.db)
-    .await?;
+    let ext: Option<Ext> = state
+        .db
+        .fetch_optional_as::<Ext>(
+            "SELECT * FROM code.extensions WHERE id = $1 AND user_id = $2",
+            params![id, user.user_id],
+        )
+        .await?;
 
     let ext = ext.ok_or_else(|| AppError::NotFound("Extension introuvable".into()))?;
 
     // Supprimer les fichiers
     tokio::fs::remove_dir_all(&ext.install_path).await.ok();
 
-    sqlx::query("DELETE FROM code.extensions WHERE id = $1")
-        .bind(id)
-        .execute(&state.db)
+    state
+        .db
+        .execute("DELETE FROM code.extensions WHERE id = $1", params![id])
         .await?;
 
     Ok(StatusCode::NO_CONTENT)
@@ -95,14 +100,25 @@ pub async fn toggle(
     Extension(user): Extension<AuthUser>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<Ext>, AppError> {
-    let ext = sqlx::query_as::<_, Ext>(
-        "UPDATE code.extensions SET is_enabled = NOT is_enabled WHERE id = $1 AND user_id = $2 RETURNING *",
-    )
-    .bind(id)
-    .bind(user.user_id)
-    .fetch_optional(&state.db)
-    .await?
-    .ok_or_else(|| AppError::NotFound("Extension introuvable".into()))?;
+    // The update is guarded by (id, user_id), neither of which it changes, so
+    // reading the row back by the same guard is exact on the engines without
+    // RETURNING: a mismatch updates nothing and the re-select then finds nothing.
+    state
+        .db
+        .execute(
+            "UPDATE code.extensions SET is_enabled = NOT is_enabled WHERE id = $1 AND user_id = $2",
+            params![id, user.user_id],
+        )
+        .await?;
+
+    let ext = state
+        .db
+        .fetch_optional_as::<Ext>(
+            "SELECT * FROM code.extensions WHERE id = $1 AND user_id = $2",
+            params![id, user.user_id],
+        )
+        .await?
+        .ok_or_else(|| AppError::NotFound("Extension introuvable".into()))?;
 
     Ok(Json(ext))
 }
