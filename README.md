@@ -47,8 +47,9 @@ A module for [Kubuno](https://github.com/kubuno/core), the self-hosted, libre (A
 
 Code is a **separate process** (a standalone Rust binary listening on port **3112**) that registers with the [core](https://github.com/kubuno/core) at startup. The core proxies its routes (`/api/v1/code/*`), distributes platform events to it and manages its lifecycle; it also serves the module's runtime-loaded React frontend bundle through the host import map.
 
-- **Backend** — `src/`: Axum + SQLx through the shared `kubuno-db` layer (PostgreSQL, MySQL/MariaDB or SQLite, chosen at run time; namespace `code`); migrations in `migrations/`. Files, projects, Git and the extension registry are handled server-side; nothing is ever executed.
-- **Frontend** — `frontend/`: a React bundle built to `entry.js`, consuming `@kubuno/sdk`, `@kubuno/ui` (`@ui`) and `@kubuno/drive` from npm — resolved by the host at runtime via the import map, never re-bundled.
+- **Server** — `server/`: Axum + SQLx through the shared `kubuno-db` layer (PostgreSQL, MySQL/MariaDB or SQLite, chosen at run time; namespace `code`); migrations in `server/migrations/`. Files, projects, Git and the extension registry are handled server-side; nothing is ever executed.
+- **Web** — `web/`: a React bundle built to `entry.js`, consuming `@kubuno/sdk`, `@kubuno/ui` (`@ui`) and `@kubuno/drive` from npm — resolved by the host at runtime via the import map, never re-bundled.
+- **Mobile** — `mobile/`: reserved for the mobile apps (see `mobile/README.md`).
 
 ## Install
 
@@ -66,8 +67,8 @@ sudo systemctl restart kubuno            # the core loads the module on (re)star
 **Requirements:** Rust ≥ 1.82, Node.js ≥ 24, and a database — PostgreSQL 16, MySQL/MariaDB or SQLite.
 
 ```bash
-cargo build --release                      # → target/release/kubuno-code
-cd frontend && npm ci && npm run build     # → dist/{entry.js, entry.css}
+cd server && cargo build --release         # → server/target/release/kubuno-code
+cd web && npm ci && npm run build          # → web/dist/{entry.js, entry.css}
 bash build_kbpkg.sh                         # → dist/code-<version>-<os>-<arch>.kbpkg
 bash build_kbpkg.sh --install              # build, install into the module store and restart
 ```
