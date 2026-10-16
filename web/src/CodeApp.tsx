@@ -54,7 +54,7 @@ export default function CodeApp() {
     const language    = detectLanguageFromName(decodedName)
     const projectId   = `__files__${fileId}`
 
-    // setActiveProject FIRST — it resets openTabs/activeTabPath in the store
+    // setActiveProject FIRST - it resets openTabs/activeTabPath in the store
     if (!activeProject) {
       setActiveProject({
         id:              projectId,

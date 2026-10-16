@@ -71,7 +71,7 @@ struct SettingDefRaw {
     unit:        Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     placeholder: Option<String>,
-    /// "info" | "warning" | "danger" — how loudly the console warns before a change.
+    /// "info" | "warning" | "danger" - how loudly the console warns before a change.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     risk:        Option<String>,
     /// Folds the setting behind the section's "Avancé" disclosure.
@@ -241,11 +241,11 @@ async fn main() -> Result<()> {
                 match http2.post(&url).header("X-Internal-Secret", secret.as_str()).send().await {
                     Ok(r) if r.status().is_success() => {}
                     Ok(r) if r.status() == reqwest::StatusCode::NOT_FOUND => {
-                        tracing::info!("Heartbeat 404 — ré-enregistrement…");
+                        tracing::info!("Heartbeat 404 - ré-enregistrement…");
                         register_with_core(&http2, &settings2).await;
                     }
                     Ok(r) if r.status() == reqwest::StatusCode::FORBIDDEN => {
-                        tracing::info!("Heartbeat 403 — module désactivé, attente…");
+                        tracing::info!("Heartbeat 403 - module désactivé, attente…");
                     }
                     Ok(r)  => tracing::warn!(status = %r.status(), "Heartbeat réponse inattendue"),
                     Err(e) => tracing::warn!(error = %e, "Heartbeat erreur réseau"),

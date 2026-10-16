@@ -1,5 +1,5 @@
 //! Runs code's own migrations and its representative statements against a real
-//! server of **each** engine, from a single compiled binary — the proof that
+//! server of **each** engine, from a single compiled binary - the proof that
 //! the engine is a run-time choice, not a build-time one.
 //!
 //! * SQLite always runs (a temp file, no server).
@@ -15,7 +15,7 @@
 //! The same binary contains all three drivers; each engine's suite is one test.
 //!
 //! `code` keeps its data access inside the handlers (coupled to `AppState`,
-//! reqwest and the filesystem), so — unlike keestore's `vault_service` — there
+//! reqwest and the filesystem), so - unlike keestore's `vault_service` - there
 //! is no thin service layer to call here. This suite therefore drives the pool
 //! with the exact statements the handlers run: the generated-key insert, the
 //! portable ordering, `count_bigint`, the dialect upsert and the reselect after
@@ -234,7 +234,7 @@ async fn full_suite(pool: &kubuno_db::DbPool) {
         .expect("reselect extension");
     assert!(ext.is_enabled, "is_enabled defaults to true");
 
-    // `NOT is_enabled`, guarded by (id, user_id) — the toggle handler's write.
+    // `NOT is_enabled`, guarded by (id, user_id) - the toggle handler's write.
     pool.execute(
         "UPDATE code.extensions SET is_enabled = NOT is_enabled WHERE id = $1 AND user_id = $2",
         params![ext_id, user],

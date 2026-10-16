@@ -199,7 +199,7 @@ fn extract_vsix(bytes: &[u8], dest: &std::path::Path) -> Result<serde_json::Valu
         let rel = name.trim_start_matches("extension/");
 
         // Refuser toute entrée dont un composant est `..`, une racine absolue ou un
-        // préfixe (lecteur Windows) — c'est l'attaque « zip-slip ».
+        // préfixe (lecteur Windows) - c'est l'attaque « zip-slip ».
         let rel_path = Path::new(rel);
         let mut safe_rel = std::path::PathBuf::new();
         for comp in rel_path.components() {

@@ -165,7 +165,7 @@ async fn project_root(
 /// Contrairement à une normalisation purement lexicale, on :
 /// 1. refuse tout composant `..` / racine absolue (pas de traversée) ;
 /// 2. résout les symlinks de l'ancêtre existant le plus profond et vérifie qu'il
-///    reste sous la racine canonique — un répertoire intermédiaire qui serait un
+///    reste sous la racine canonique - un répertoire intermédiaire qui serait un
 ///    symlink vers l'extérieur (planté via un repo cloné ou un VSIX) est ainsi
 ///    rejeté, fermant l'évasion par symlink à l'écriture.
 ///

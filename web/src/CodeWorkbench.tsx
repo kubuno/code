@@ -30,7 +30,7 @@ export default function CodeWorkbench({ project }: Props) {
   // renommage / suppression serveur (le titre reste statique).
   const isSynthetic = project.id.startsWith('__files__')
 
-  // ── Titre éditable (standard WorkspaceShell) — nom du projet ──────────────────
+  // ── Titre éditable (standard WorkspaceShell) - nom du projet ──────────────────
   const [titleDraft, setTitleDraft] = useState('')
   useEffect(() => { setTitleDraft(project.name) }, [project.name])
   const renameMut = useMutation({

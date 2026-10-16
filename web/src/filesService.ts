@@ -1,7 +1,7 @@
 /**
  * Accès au service de fichiers du module `files` via ModuleServiceRegistry.
  *
- * Le module `code` ne connaît pas l'existence du module `files` directement —
+ * Le module `code` ne connaît pas l'existence du module `files` directement -
  * il passe uniquement par le registre de services publié par files/register.ts.
  * Si le module files n'est pas chargé, les appels retournent undefined sans erreur.
  */
@@ -56,7 +56,7 @@ export const filesService = {
   openFilePicker: (opts?: object): unknown =>
     files().call('drive', 'openFilePicker', opts),
 
-  // Ouvre le sélecteur de dossier — retourne { id: string | null, name: string } | null
+  // Ouvre le sélecteur de dossier - retourne { id: string | null, name: string } | null
   pickFolder: (opts?: object): Promise<{ id: string | null; name: string } | null> | undefined =>
     files().call('drive', 'pickFolder', opts),
 }

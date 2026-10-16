@@ -1,4 +1,4 @@
-# Kubuno Code — mobile apps
+# Kubuno Code - mobile apps
 
 Reserved for the mobile clients of the Code module, organised like the other platforms of this repository:
 

@@ -12,7 +12,7 @@ import { useModulePrefs } from './userPrefs'
 // being merged on top of the module's own `code.user_settings` (see EditorArea).
 
 // A `type` (not `interface`) so it satisfies the `Record<string, unknown>`
-// constraint of `useModulePrefs` — object type aliases carry an implicit
+// constraint of `useModulePrefs` - object type aliases carry an implicit
 // index signature for assignability; interfaces do not.
 export type CodePrefs = {
   theme:           string   // 'vs-dark' | 'vs' | 'hc-black'

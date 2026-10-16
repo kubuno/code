@@ -2,7 +2,7 @@
 //! the console.
 //!
 //! Declared by `module.toml`'s `[[settings]]`, stored in `core.settings`, and read
-//! back here through `/internal/modules/code/settings` — a module owns its own
+//! back here through `/internal/modules/code/settings` - a module owns its own
 //! schema and cannot read the core's tables, and a background worker has no user
 //! token for the public config route. The module is named in the URL so the read
 //! works whether the instance shares one master secret or a derived one per
@@ -10,7 +10,7 @@
 //!
 //! Every field here is read by code that acts on it: a knob that changes nothing
 //! is worse than an absent one. Only two of the STATIC `config.toml` values are
-//! promoted — both already applied at runtime: the per-file size ceiling
+//! promoted - both already applied at runtime: the per-file size ceiling
 //! (`max_file_bytes`, enforced on read AND write) and the extension registry URL
 //! (`extension_registry_url`, used by every registry call).
 //!
@@ -71,7 +71,7 @@ fn normalize_host_entry(line: &str) -> Option<String> {
 ///
 /// An entry matches the host itself or any SUBDOMAIN of it, and the subdomain
 /// test requires a dot boundary so that `github.com` never matches
-/// `evilgithub.com`. An empty allowlist matches everything — the list is opt-in.
+/// `evilgithub.com`. An empty allowlist matches everything - the list is opt-in.
 pub fn host_is_allowed(host: &str, allowlist: &[String]) -> bool {
     if allowlist.is_empty() {
         return true;

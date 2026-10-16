@@ -2,7 +2,7 @@
 id            = "code"
 display_name  = "Code"
 version       = "0.1.8"
-description   = "IDE web collaborative — éditeur de code et Git"
+description   = "IDE web collaborative - éditeur de code et Git"
 author        = "Kubuno Contributors"
 license       = "AGPL-3.0"
 runtime       = "rust"
